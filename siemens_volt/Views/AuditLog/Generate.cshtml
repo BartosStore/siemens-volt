@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "Generate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Generate</h1>
+
+<h2>Spotřeba elektrické energie</h2>
+<p>Online odečítání: <span id="status">Vypnuto</span></p>
+<p>
+    Aktuálně:
+    <span id="consumption">0.00</span>
+    <span id="loader"><i class="fa fa-spinner fa-spin"></i></span>
+</p>
+
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+
+<p id="error"></p>
+
+<script>
+    document.getElementById("loader").style.display = 'none';
+
+    const status = {
+        ON: 'Zapnuto',
+        OFF: 'Vypnuto',
+    }
+    var actualStatus = false;
+    var consumption = 0.00;
+    var intervalId;
+
+    function start() {
+        if (actualStatus == false) {
+            actualStatus = true;
+            document.getElementById("status").innerHTML = resolveStatus(actualStatus);
+            document.getElementById("error").innerHTML = '';
+            document.getElementById("loader").style.display = 'inline';
+
+            intervalId = setInterval(function () {
+                consumption = Math.floor(Math.random() * 8999) / 100;
+                document.getElementById("consumption").innerHTML = consumption;
+
+                var model = { Action: "Vygenerovana hodnota", Description: consumption.toString() };
+                $.ajax({
+                    url: '/AuditLog/Generate',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    data: JSON.stringify(model),
+                    success: function (data) {
+                        console.log('result:', data);
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log('Error message.', exception);
+                    }
+                });
+            }, 2000);
+        } else {
+            document.getElementById("error").innerHTML = 'Odečítání již probíhá.';
+        }
+    }
+
+    function stop() {
+        if (actualStatus == true) {
+            actualStatus = false;
+            document.getElementById("status").innerHTML = resolveStatus(actualStatus);
+            document.getElementById("loader").style.display = 'none';
+
+            consumption = 0.00;
+            document.getElementById("consumption").innerHTML = consumption;
+
+            clearInterval(intervalId);
+
+            document.getElementById("error").innerHTML = '';
+        } else {
+            document.getElementById("error").innerHTML = 'Odečítání je již zastaveno.';
+        }
+    }
+
+    function resolveStatus(actualStatus) {
+        if (actualStatus == true) {
+            return status.ON;
+        } else {
+            return status.OFF;
+        }
+    }
+</script>
