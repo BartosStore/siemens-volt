@@ -43,20 +43,35 @@ namespace siemens_volt
         }
 
         // GET: AuditLog
-        public async Task<IActionResult> IndexAsync(string sortOrder)
+        public async Task<IActionResult> IndexAsync(string sortOrder, string searchString)
         {
             ViewBag.TimestampSortParm = sortOrder == "Timestamp" ? "timestamp_desc" : "Timestamp";
             ViewBag.ActionSortParm = sortOrder == "Action" ? "action_desc" : "Action";
             ViewBag.DescriptionSortParm = sortOrder == "Description" ? "description_desc" : "Description";
 
             var auditLogs = await _context.AuditLog.ToListAsync();
-            var orderedAuditLogs = auditLogs.OrderByDescending(a => a.Timestamp);
+            IEnumerable<AuditLog> orderedAuditLogs = Enumerable.Empty<AuditLog>();
 
+            // search
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var foundAuditLogs = auditLogs.Where(a => a.Action.ToLower().Contains(searchString.ToLower())
+                    || a.Description.ToLower().Contains(searchString.ToLower())
+                );
+                orderedAuditLogs = foundAuditLogs.OrderByDescending(a => a.Timestamp);
+            }
+            else
+            {
+
+                orderedAuditLogs = auditLogs.OrderByDescending(a => a.Timestamp);
+            }
+
+            // sort
             switch (sortOrder)
             {
                 case "Timestamp":
                     orderedAuditLogs = orderedAuditLogs.OrderBy(s => s.Timestamp);
-                    break;                
+                    break;
                 case "Action":
                     orderedAuditLogs = orderedAuditLogs.OrderBy(s => s.Action);
                     break;
