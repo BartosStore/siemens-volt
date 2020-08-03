@@ -21,6 +21,27 @@ namespace siemens_volt
             _context = context;
         }
 
+        // GET: Generate
+        public IActionResult Generate()
+        {
+            return View();
+        }
+
+        // POST: Logger/Generate
+        [HttpPost]
+        public async Task<string> Generate([FromBody] AuditLogViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                AuditLog logger = new AuditLog(DateTime.Now, model.Action, model.Description);
+                _context.Add(logger);
+                await _context.SaveChangesAsync();
+
+                return model.Action;
+            }
+            return "ERROR_INVALID_STATE";
+        }
+
         // GET: AuditLog
         public async Task<IActionResult> Index()
         {
