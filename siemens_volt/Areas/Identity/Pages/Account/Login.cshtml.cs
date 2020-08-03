@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using siemens_volt.Data;
+using siemens_volt.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace siemens_volt.Areas.Identity.Pages.Account
 {
@@ -20,14 +23,17 @@ namespace siemens_volt.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _context;
 
         public LoginModel(SignInManager<IdentityUser> signInManager, 
             ILogger<LoginModel> logger,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = context;
         }
 
         [BindProperty]
@@ -84,6 +90,12 @@ namespace siemens_volt.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    var remote = this.HttpContext.Connection.RemoteIpAddress;
+                    AuditLog auditLog = new AuditLog(DateTime.Now, "Přihlášení uživatele", Input.Email + " - " + remote);
+                    this._context.Add(auditLog);
+                    await _context.SaveChangesAsync();
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
