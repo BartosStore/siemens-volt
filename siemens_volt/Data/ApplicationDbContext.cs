@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using siemens_volt.Models;
 
 namespace siemens_volt.Data
 {
@@ -12,5 +13,7 @@ namespace siemens_volt.Data
             : base(options)
         {
         }
+
+        public DbSet<AuditLog> AuditLog { get; set; }
     }
 }
