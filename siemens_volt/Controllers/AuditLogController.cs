@@ -43,49 +43,61 @@ namespace siemens_volt
         }
 
         // GET: AuditLog
-        public async Task<IActionResult> IndexAsync(string sortOrder, string searchString)
+        public async Task<IActionResult> Index(
+            string sortOrder,
+            string currentFilter,
+            string searchString,
+            int? pageNumber)
         {
-            ViewBag.TimestampSortParm = sortOrder == "Timestamp" ? "timestamp_desc" : "Timestamp";
-            ViewBag.ActionSortParm = sortOrder == "Action" ? "action_desc" : "Action";
-            ViewBag.DescriptionSortParm = sortOrder == "Description" ? "description_desc" : "Description";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["TimestampSortParm"] = sortOrder == "Timestamp" ? "timestamp_desc" : "Timestamp";
+            ViewData["ActionSortParm"] = sortOrder == "Action" ? "action_desc" : "Action";
+            ViewData["DescriptionSortParm"] = sortOrder == "Description" ? "description_desc" : "Description";
 
-            var auditLogs = await _context.AuditLog.ToListAsync();
-            IEnumerable<AuditLog> orderedAuditLogs = Enumerable.Empty<AuditLog>();
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var auditLogs = from a in _context.AuditLog
+                            select a;
 
             // search
             if (!String.IsNullOrEmpty(searchString))
             {
-                var foundAuditLogs = auditLogs.Where(a => a.Action.ToLower().Contains(searchString.ToLower())
+                auditLogs = auditLogs.Where(a => a.Action.ToLower().Contains(searchString.ToLower())
                     || a.Description.ToLower().Contains(searchString.ToLower())
                 );
-                orderedAuditLogs = foundAuditLogs.OrderByDescending(a => a.Timestamp);
-            }
-            else
-            {
-
-                orderedAuditLogs = auditLogs.OrderByDescending(a => a.Timestamp);
             }
 
             // sort
             switch (sortOrder)
             {
                 case "Timestamp":
-                    orderedAuditLogs = orderedAuditLogs.OrderBy(s => s.Timestamp);
+                    auditLogs = auditLogs.OrderBy(s => s.Timestamp);
                     break;
                 case "Action":
-                    orderedAuditLogs = orderedAuditLogs.OrderBy(s => s.Action);
+                    auditLogs = auditLogs.OrderBy(s => s.Action);
                     break;
                 case "action_desc":
-                    orderedAuditLogs = orderedAuditLogs.OrderByDescending(s => s.Action);
+                    auditLogs = auditLogs.OrderByDescending(s => s.Action);
                     break;
                 case "Description":
-                    orderedAuditLogs = orderedAuditLogs.OrderBy(s => s.Description);
+                    auditLogs = auditLogs.OrderBy(s => s.Description);
                     break;
                 case "description_desc":
-                    orderedAuditLogs = orderedAuditLogs.OrderByDescending(s => s.Description);
+                    auditLogs = auditLogs.OrderByDescending(s => s.Description);
                     break;
             }
-            return View(orderedAuditLogs);
+
+            int pageSize = 10;
+            return View(await PaginatedList<AuditLog>.CreateAsync(auditLogs.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: AuditLog/Details/5
@@ -123,7 +135,7 @@ namespace siemens_volt
             {
                 _context.Add(auditLog);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(IndexAsync));
+                return RedirectToAction(nameof(Index));
             }
             return View(auditLog);
         }
@@ -174,7 +186,7 @@ namespace siemens_volt
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(IndexAsync));
+                return RedirectToAction(nameof(Index));
             }
             return View(auditLog);
         }
@@ -205,7 +217,7 @@ namespace siemens_volt
             var auditLog = await _context.AuditLog.FindAsync(id);
             _context.AuditLog.Remove(auditLog);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(IndexAsync));
+            return RedirectToAction(nameof(Index));
         }
 
         private bool AuditLogExists(int id)
