@@ -5,8 +5,6 @@
 
 @section scripts{
     <script>
-        document.getElementById("loader").style.display = 'none';
-
         const status = {
             ON: 'Zapnuto',
             OFF: 'Vypnuto',
@@ -20,37 +18,39 @@
                 actualStatus = true;
                 document.getElementById("status").innerHTML = resolveStatus(actualStatus);
                 document.getElementById("error").innerHTML = '';
-                document.getElementById("loader").style.display = 'inline';
 
-                intervalId = setInterval(function () {
-                    consumption = Math.floor(Math.random() * 8999) / 100;
-                    document.getElementById("consumption").innerHTML = consumption;
+                generate();
 
-                    var model = { Action: "Vygenerovana hodnota", Description: consumption.toString() };
-                    $.ajax({
-                        url: '/AuditLog/Generate',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
-                        data: JSON.stringify(model),
-                        success: function (data) {
-                            console.log('result:', data);
-                        },
-                        error: function (jqXHR, exception) {
-                            console.log('Error message.', exception);
-                        }
-                    });
-                }, 2000);
+                intervalId = setInterval(generate, 15000);
             } else {
                 document.getElementById("error").innerHTML = 'Odečítání již probíhá.';
             }
+        }
+
+        function generate() {
+            consumption = Math.floor(Math.random() * 8999) / 100;
+            document.getElementById("consumption").innerHTML = consumption;
+
+            var model = { Action: "Vygenerovana hodnota", Description: consumption.toString() };
+            $.ajax({
+                url: '/AuditLog/Generate',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: JSON.stringify(model),
+                success: function (data) {
+                    console.log('result:', data);
+                },
+                error: function (jqXHR, exception) {
+                    console.log('Error message.', exception);
+                }
+            });
         }
 
         function stop() {
             if (actualStatus == true) {
                 actualStatus = false;
                 document.getElementById("status").innerHTML = resolveStatus(actualStatus);
-                document.getElementById("loader").style.display = 'none';
 
                 consumption = 0.00;
                 document.getElementById("consumption").innerHTML = consumption;
@@ -85,7 +85,6 @@
     <dt class="col-md-4">Aktuální odběr</dt>
     <dd class="col-md-8">
         <span id="consumption">0.00</span>
-        <span id="loader"><i class="fa fa-spinner fa-spin"></i></span>
     </dd>
 </dl>
 
