@@ -9,6 +9,11 @@ using siemens_volt.Models;
 
 namespace siemens_volt.Controllers
 {
+    /**
+     * Defaultni kontroller. Obsluhuje view pod slozkou Home.
+     * Diky konfiguraci ve Startup.cs zachytava Exceptions.
+     * Je dostupny i bez prihlaseni.
+     */
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

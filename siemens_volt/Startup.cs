@@ -24,9 +24,13 @@ namespace siemens_volt
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /**
+         * Metoda odkazujici na connection string k DB.
+         * Nastavuje sluzbu Identity pro autentikaci.
+         */
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -36,7 +40,9 @@ namespace siemens_volt
             services.AddRazorPages();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /**
+         * Zachytavani chyb pomoci Exception handleru.
+         */
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

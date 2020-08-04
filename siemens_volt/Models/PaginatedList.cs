@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace siemens_volt.Models
 {
+    /**
+     * Pomocna trida pro ucely strankovani.
+     */
     public class PaginatedList<T> : List<T>
     {
         public int PageIndex { get; private set; }

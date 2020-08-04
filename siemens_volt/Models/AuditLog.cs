@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace siemens_volt.Models
 {
+    /**
+     * Model class definuje podobu DB tabulky.
+     * Podle zadani slouzi k ulozeni dat generovanych z JS.
+     */
     public class AuditLog
     {
         [Key]

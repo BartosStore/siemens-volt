@@ -13,6 +13,11 @@
         var consumption = 0.00;
         var intervalId;
 
+        /**
+         * Generovani zajistuje funkce generate.
+         * Ta je volana jednou a pote pomoci JS funkce setInterval kazdych 15 sekund.
+         * Jsou osetreny vicenasobna spusteni.
+         * */
         function start() {
             if (actualStatus == false) {
                 actualStatus = true;
@@ -27,6 +32,12 @@
             }
         }
 
+        /**
+         * Samotna funkce pro generovani a vypis dat.
+         * Komunikuje se pres ajax, odeslanim HTTP POST requestu.
+         * Podoba dat je definovana v AuditLogViewModel.cs
+         * 
+         * */
         function generate() {
             consumption = Math.floor(Math.random() * 8999) / 100;
             document.getElementById("consumption").innerHTML = consumption;

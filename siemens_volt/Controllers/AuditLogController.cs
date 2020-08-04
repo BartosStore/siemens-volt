@@ -11,6 +11,11 @@ using siemens_volt.Models;
 
 namespace siemens_volt
 {
+    /**
+     * Kontroller obsluhujici view pod AuditLog/.
+     * Diky Authorize je dostupny pouze pro prihlasene uzivatele.
+     * 
+     */
     [Authorize]
     public class AuditLogController : Controller
     {
@@ -21,12 +26,18 @@ namespace siemens_volt
             _context = context;
         }
 
+        /**
+         * Jednoduchy pristup k page pomoci GET pozadavku.
+         */
         // GET: Generate
         public IActionResult Generate()
         {
             return View();
         }
 
+        /**
+         * Metoda prijimajici POST pozadavky nesouci data k zapisu do DB.
+         */
         // POST: Logger/Generate
         [HttpPost]
         public async Task<string> Generate([FromBody] AuditLogViewModel model)
@@ -42,6 +53,10 @@ namespace siemens_volt
             return "ERROR_INVALID_STATE";
         }
 
+        /**
+         * Defaultni page pro /AuditLog.
+         * Vraci data z DB a pritom nabizi sortovani, vyhledavani a strankovani.
+         */
         // GET: AuditLog
         public async Task<IActionResult> Index(
             string sortOrder,
@@ -97,6 +112,7 @@ namespace siemens_volt
             }
 
             int pageSize = 10;
+            // pro ucely strankovani byla vytvorena PaginatedList
             return View(await PaginatedList<AuditLog>.CreateAsync(auditLogs.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 

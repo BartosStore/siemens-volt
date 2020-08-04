@@ -7,6 +7,10 @@ using siemens_volt.Models;
 
 namespace siemens_volt.Data
 {
+    /**
+     * Identity je sluzba pro jednoduchou implementaci autentikace.
+     * Dokaze generovat schema.
+     */
     public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -14,6 +18,9 @@ namespace siemens_volt.Data
         {
         }
 
+        /**
+         * Timto je zajisteno vytvareni AuditLog tabulky.
+         */
         public DbSet<AuditLog> AuditLog { get; set; }
     }
 }
