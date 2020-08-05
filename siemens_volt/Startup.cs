@@ -26,6 +26,7 @@ namespace siemens_volt
 
         /**
          * Metoda odkazujici na connection string k DB.
+         * Jako persistentni vrstva je pouzit Entity Framework - ORM.
          * Nastavuje sluzbu Identity pro autentikaci.
          */
         public void ConfigureServices(IServiceCollection services)
@@ -33,7 +34,7 @@ namespace siemens_volt
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("SqlDbConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
@@ -42,6 +43,7 @@ namespace siemens_volt
 
         /**
          * Zachytavani chyb pomoci Exception handleru.
+         * Pro ucely ladeni doporucuji povolit sekci pod flagem "IsDevelopment".
          */
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
