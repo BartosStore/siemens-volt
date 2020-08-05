@@ -25,6 +25,10 @@ namespace siemens_volt.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly ApplicationDbContext _context;
 
+        /**
+         * Login model vyžaduje 4 parametry v konstruktoru.
+         * Ty mu jsou injektovany pomoci dependency injection.
+         */
         public LoginModel(SignInManager<IdentityUser> signInManager, 
             ILogger<LoginModel> logger,
             UserManager<IdentityUser> userManager,
@@ -70,7 +74,6 @@ namespace siemens_volt.Areas.Identity.Pages.Account
 
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -84,13 +87,15 @@ namespace siemens_volt.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+
+                // Login probehl v poradku.
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
 
+                    // Diky _context muzeme pres ORM jednoduse zapisovat do DB.
+                    // Zde je slozen objekt AuditLog a zapsan do DB.
                     var remote = this.HttpContext.Connection.RemoteIpAddress;
                     AuditLog auditLog = new AuditLog(DateTime.Now, "Přihlášení uživatele", Input.Email + " - " + remote);
                     this._context.Add(auditLog);
@@ -104,17 +109,17 @@ namespace siemens_volt.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning("User account locked out.");
+                    _logger.LogWarning("Účet byl uzamknut.");
                     return RedirectToPage("./Lockout");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Přihlášení se nepodařilo.");
                     return Page();
                 }
             }
 
-            // If we got this far, something failed, redisplay form
+            // V pripade potizi dojde k novemu renderovani formulare
             return Page();
         }
     }
