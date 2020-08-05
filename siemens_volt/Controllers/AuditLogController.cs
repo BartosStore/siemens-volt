@@ -44,9 +44,11 @@ namespace siemens_volt
         {
             if (ModelState.IsValid)
             {
-                AuditLog logger = new AuditLog(DateTime.Now, model.Action, model.Description);
-                _context.Add(logger);
-                await _context.SaveChangesAsync();
+                // Zde je slozen objekt AuditLog a zapsan do DB.
+                // Diky _context muzeme pres ORM jednoduse zapisovat do DB.
+                // Pro znovupouzitelnost byla vytvorena trida AuditLogger.
+                AuditLog auditLog = new AuditLog(DateTime.Now, model.Action, model.Description);
+                await new AuditLogger(_context).WriteNewRecord(auditLog);
 
                 return model.Action;
             }

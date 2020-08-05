@@ -85,12 +85,12 @@ namespace siemens_volt.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Diky _context muzeme pres ORM jednoduse zapisovat do DB.
                     // Zde je slozen objekt AuditLog a zapsan do DB.
+                    // Diky _context muzeme pres ORM jednoduse zapisovat do DB.
+                    // Pro znovupouzitelnost byla vytvorena trida AuditLogger.
                     var remote = this.HttpContext.Connection.RemoteIpAddress;
                     AuditLog auditLog = new AuditLog(DateTime.Now, "Registrace uživatele", Input.Email + " - " + remote);
-                    this._context.Add(auditLog);
-                    await _context.SaveChangesAsync();
+                    await new AuditLogger(_context).WriteNewRecord(auditLog);
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
