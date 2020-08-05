@@ -6,6 +6,15 @@
 - obsluhující stránky jsou dostupné pouze přihlášeným uživatelům
 - logovány jsou akce generování, přihlášení, login
 
+## TL;DR;
+
+- git clone https://github.com/BartosStore/siemens-volt.git
+- spustit SQL server, vytvořit DB a vytvořit schéma skriptem ./assets/init_db.sql
+- otevřít projekt ve Visual Studiu
+- upravit connection string v ./siemens_volt/appsettings.json
+- provést Publish projektu do adresáře webové aplikace IIS
+- vstoupit na URL webové aplikace IIS
+
 ## Příprava prostředí
 
 Pro jednoduché otestování doporučuji použít lokální IIS a SQL server Express. Během konfigurace IIS vytvořit nový application pool, novou webovou aplikaci s vlastním adresářem pro deploy z Visual Studia. V SQL serveru je potřeba vytvořit novou DB a aplikovat přiložený init_db.sql skript.
