@@ -6,14 +6,6 @@ Changes to this file may cause incorrect behavior and will be lost if
 the code is regenerated.
 */
 
-
-
-
-GO
-:setvar DatabaseName "siemens"
-USE [$(DatabaseName)];
-
-
 GO
 PRINT N'Creating [dbo].[__EFMigrationsHistory]...';
 
